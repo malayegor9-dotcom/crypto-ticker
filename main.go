@@ -68,12 +68,17 @@ func main() {
 			}
 			diffBTC := data.BTC.USD - prevData.BTC.USD
 
+			arrow := "▲"
 			diffColor := colorGreen
-			if diffBTC < 0 {
-				diffColor = colorRed
-			}
 
-			fmt.Printf("BTC: %s%+.2f%s\n", diffColor, diffBTC, colorReset)
+			if diffBTC < 0 {
+				arrow = "▼"
+				diffColor = colorRed
+			} else if diffBTC > -0.01 && diffBTC < 0.01 {
+				arrow = "→"
+				diffColor = colorCyan
+			}
+			fmt.Printf("Изменение: %s%s %+.2f%s\n", diffColor, arrow, diffBTC, colorReset)
 		}
 
 		fmt.Println("─────────────────────────")

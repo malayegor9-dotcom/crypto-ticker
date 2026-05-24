@@ -40,26 +40,31 @@ func FetchPrices(client *http.Client, url string) (*structure.CoinData, error) {
 func CheckAlerts(current, prev *structure.CoinData, config structure.AlertConfig) []string {
 
 	var alerts []string
+	//Создаем слайс для хранения сообщений об алертах
 
 	if config.BTCAbove > 0 {
 
 		prevWasBelow := prev.BTC.USD < config.BTCAbove
 		nowIsAbove := current.BTC.USD >= config.BTCAbove
 		if prevWasBelow && nowIsAbove {
-			msg := fmt.Sprintf("BTC пересёк верхний порог $%.2f (текущая $%.2f)",
-				config.BTCAbove, current.BTC.USD)
+			msg := fmt.Sprintf("BTC пересёк верхний порог $%.2f)",
+				config.BTCAbove)
 			alerts = append(alerts, msg)
 		}
+		//Проверяем, был ли предыдущий курс ниже порога и стал ли текущий выше или равен порогу.
+		//Если да, добавляем сообщение в алерты
 	}
 
 	if config.BTCBelow > 0 {
 		prevWasAbove := prev.BTC.USD > config.BTCBelow
 		nowIsBelow := current.BTC.USD <= config.BTCBelow
 		if prevWasAbove && nowIsBelow {
-			msg := fmt.Sprintf("BTC упал ниже порога $%.2f (текущая $%.2f)",
-				config.BTCBelow, current.BTC.USD)
+			msg := fmt.Sprintf("BTC пересёк нижний порог $%.2f)",
+				config.BTCBelow)
 			alerts = append(alerts, msg)
 		}
+		//Проверяем, был ли предыдущий курс выше порога и стал ли текущий ниже или равен порогу.
+		//Если да, добавляем сообщение в алерты
 	}
 
 	return alerts
