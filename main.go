@@ -10,6 +10,15 @@ import (
 	"time"
 )
 
+const (
+	colorReset  = "\033[0m"
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorCyan   = "\033[36m"
+	colorBold   = "\033[1m"
+)
+
 func main() {
 	ticker := time.NewTicker(30 * time.Second)
 	//Создаем канал с переодическим откликом
@@ -19,7 +28,8 @@ func main() {
 		Timeout: 10 * time.Second,
 	}
 
-	fmt.Println("=== Запуск скрипта. Обновление каждые 30 секунд. Нажмите Ctrl+C для выхода. ===")
+	fmt.Printf("%s=== Запуск скрипта. Обновление каждые 30 секунд. Нажмите Ctrl+C для выхода. ===%s\n", colorCyan, colorReset)
+	fmt.Println()
 
 	url := "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
 	//Нужный url для получения котировок
@@ -45,21 +55,28 @@ func main() {
 		}
 		//Обращаемся к API, ждем следующий цикл если что-то пошло не так
 
-		fmt.Printf("%s | BTC: $%.2f\n",
-			time.Now().Format("15:04:05"),
-			data.BTC.USD,
+		fmt.Printf("%s%s%s | BTC: %s$%.2f%s\n",
+			colorCyan, time.Now().Format("15:04:05"), colorReset,
+			colorBold, data.BTC.USD, colorReset,
 		)
 		//Выводим текущую цену и время
 
 		if prevData != nil {
 			alerts := functions.CheckAlerts(data, prevData, config)
 			for _, alert := range alerts {
-				fmt.Println(alert)
+				fmt.Printf("%s%s%s\n", colorYellow, alert, colorReset)
 			}
 			diffBTC := data.BTC.USD - prevData.BTC.USD
 
-			fmt.Printf("BTC: %+.2f\n", diffBTC)
+			diffColor := colorGreen
+			if diffBTC < 0 {
+				diffColor = colorRed
+			}
+
+			fmt.Printf("BTC: %s%+.2f%s\n", diffColor, diffBTC, colorReset)
 		}
+
+		fmt.Println("─────────────────────────")
 
 		prevData = data
 		//Обновляем данные
