@@ -1,21 +1,24 @@
 package structure
 
-type Price struct {
-	USD float64 `json:"usd"`
+type BybitTicker struct {
+	LastPrice string `json:"lastPrice"`
+}
+
+type BybitResult struct {
+	List []BybitTicker `json:"list"`
+}
+
+type BybitResponse struct {
+	Result BybitResult `json:"result"`
 }
 
 type CoinData struct {
-	BTC Price `json:"bitcoin"`
-	ETH Price `json:"ethereum"`
+	BTC float64
 }
 
-//описание структуры с JSON для котировок
-
 type AlertConfig struct {
-    BTCAbove float64
-    BTCBelow float64
-    ETHAbove float64
-    ETHBelow float64
+	BTCAbove float64
+	BTCBelow float64
 }
 
 //Описание структуры для алертов

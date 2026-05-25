@@ -17,6 +17,7 @@ const (
 	colorYellow = "\033[33m"
 	colorCyan   = "\033[36m"
 	colorBold   = "\033[1m"
+	//Константы для цветного вывода в терминале
 )
 
 func main() {
@@ -27,11 +28,12 @@ func main() {
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
+	//Создаем HTTP клиент с таймаутом для запросов
 
 	fmt.Printf("%s=== Запуск скрипта. Обновление каждые 30 секунд. Нажмите Ctrl+C для выхода. ===%s\n", colorCyan, colorReset)
 	fmt.Println()
 
-	url := "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+	url := "https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT"
 	//Нужный url для получения котировок
 
 	var prevData *structure.CoinData
@@ -40,11 +42,13 @@ func main() {
 	btcAbove := flag.Float64("btc-above", 0, "Алерт, когда BTC выше")
 	btcBelow := flag.Float64("btc-below", 0, "Алерт, когда BTC ниже")
 	flag.Parse()
+	//Обработка аргументов командной строки для настройки алертов
 
 	config := structure.AlertConfig{
 		BTCAbove: *btcAbove,
 		BTCBelow: *btcBelow,
 	}
+	//Создаем конфигурацию для алертов на основе аргументов
 
 	for {
 		data, err := functions.FetchPrices(client, url)
@@ -55,18 +59,21 @@ func main() {
 		}
 		//Обращаемся к API, ждем следующий цикл если что-то пошло не так
 
-		fmt.Printf("%s%s%s | BTC: %s$%.2f%s\n",
+		fmt.Printf("| %s%s%s | BTC: %s$%.2f%s\n",
 			colorCyan, time.Now().Format("15:04:05"), colorReset,
-			colorBold, data.BTC.USD, colorReset,
+			colorBold, data.BTC, colorReset,
 		)
 		//Выводим текущую цену и время
 
 		if prevData != nil {
 			alerts := functions.CheckAlerts(data, prevData, config)
 			for _, alert := range alerts {
-				fmt.Printf("%s%s%s\n", colorYellow, alert, colorReset)
+				fmt.Printf("| %s%s%s\n", colorYellow, alert, colorReset)
 			}
-			diffBTC := data.BTC.USD - prevData.BTC.USD
+			//Выводим алерты, если они есть, желтым цветом
+			//-btc-above=76530 верхний порог | -btc-below=75000 нижний порог
+
+			diffBTC := data.BTC - prevData.BTC
 
 			arrow := "▲"
 			diffColor := colorGreen
@@ -78,10 +85,11 @@ func main() {
 				arrow = "→"
 				diffColor = colorCyan
 			}
-			fmt.Printf("Изменение: %s%s %+.2f%s\n", diffColor, arrow, diffBTC, colorReset)
+			fmt.Printf("| Изменение: %s%s %+.2f%s\n", diffColor, arrow, diffBTC, colorReset)
+			//Выводим изменение цены с цветом и индикатором направления
 		}
 
-		fmt.Println("─────────────────────────")
+		fmt.Println("|──────────────────────────────────────")
 
 		prevData = data
 		//Обновляем данные
