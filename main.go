@@ -3,10 +3,12 @@ package main
 import (
 	"crypto-ticker/functions"
 	"crypto-ticker/structure"
+	"crypto-ticker/telegram"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -21,6 +23,13 @@ const (
 )
 
 func main() {
+
+	botToken := os.Getenv("BOT_TOKEN")
+	if botToken != "" {
+		go telegram.Start(botToken)
+	}
+	//запускаем телеграм бота в отдельной горутине
+
 	ticker := time.NewTicker(30 * time.Second)
 	//Создаем канал с переодическим откликом
 	defer ticker.Stop()
@@ -30,7 +39,7 @@ func main() {
 	}
 	//Создаем HTTP клиент с таймаутом для запросов
 
-	fmt.Printf("%s=== Запуск скрипта. Обновление каждые 30 секунд. Нажмите Ctrl+C для выхода. ===%s\n", colorCyan, colorReset)
+	fmt.Printf("%s=== Запуск скрипта. Обновление каждые 30 секунд. Нажмите Ctrl+C для выхода ===%s\n", colorCyan, colorReset)
 	fmt.Println()
 
 	url := "https://api.bybit.com/v5/market/tickers?category=spot&symbol=BTCUSDT"
